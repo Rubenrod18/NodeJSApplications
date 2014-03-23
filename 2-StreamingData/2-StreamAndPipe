@@ -1,0 +1,21 @@
+var http = require('http'); // HTTP Module
+var fs = require('fs'); // File System Module
+
+/*
+ * We'll create the server and also, a function callback
+ * that it will have a request(req) and a response (res).
+ */
+http.createServer(function (req, res) {
+  // We are that especific the content type.
+  res.writeHead(200, {'Content-Type': 'image/png'});
+  /*
+   * In this one-liner, the data is read in from the file
+   * (fs.createReadStream) and is sent out (.pipe) to the
+   * client (res) as it comes in. The event loop is
+   * able to handle other events while the data is being streamed.
+   */
+  fs.createReadStream('./nodejs.png').pipe(res);
+}).listen(3000); // Listen the server on the port 3000
+
+// Log message that it will show in the console
+console.log('Server running at http://localhost:3000/');
