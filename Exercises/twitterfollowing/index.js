@@ -9,56 +9,29 @@ var twit = new twitter({
   });
 
 /*
- * Function that return the difference between the now
- * hour and the hour to next request in milliseconds.
- */
-function calculateDifference(time) {
-  var hour, minutes, seconds, requestMilliseconds, dateMilliseconds, date;
-
-  // We get hour, minutes and seconds for next request.
-  hour = time.getHours(time);
-  minutes = time.getMinutes(time);
-  seconds = time.getSeconds(time);
-
-  // Now, we should to convert hour, minutes and seconds in milliseconds.
-  requestMilliseconds = hour * 3600000 + minutes * 60000 + seconds * 1000;
-
-  // We create a Object of type Date and we get the hour, minutes and seconds.
-  // Now, we should to convert hour, minutes and seconds in milliseconds.
-  date = new Date();
-  dateMilliseconds = date.getHours() * 3600000 +
-                     date.getMinutes() * 60000 +
-                     date.getSeconds() * 1000;
-
-  return requestMilliseconds - dateMilliseconds;
-}
-
-/*
- * Function that show the time to go back to
+ * Function that it shows the time to go back to
  * request to the Twitter REST API.
  */
 function showRemainingTime(time) {
-  var hour, minutes, seconds;
-
-  hour = time.getHours(time);
-  minutes = time.getMinutes(time);
-  seconds = time.getSeconds(time);
-
-  console.log('You can make requests to the Twitter REST API the ' + hour
-                    + ':' + minutes
-                    + ':' + seconds);
+  console.log('You can perform more requests at ' + time.getHours()
+                  + ':' + time.getMinutes()
+                  + ':' + time.getSeconds());
 }
 
+/*
+ * Function that it shows the nickname of user, the id of the first
+ * following and his nickname.
+ */
 function show(nickName, followingId, followingNickname) {
-  console.log('Nickname: ' + nickName);
-  console.log('Following ID: ' + followingId);
-  console.log('First Following: ' + followingNickname);
+  console.log('Nickname: ' + nickName
+                + '\nFollowing ID: ' + followingId
+                + '\nFirst Following: ' + followingNickname);
 }
 
 function ratedLimit(err, params) {
-  var remainingTime = err.headers['x-rate-limit-reset'];
-  var time = new Date(remainingTime * 1000); // Convert seconds to milliseconds because
-                                              // the TIMESTAMP in JavaScript it works in milliseconds.
+  var time = new Date(err.headers['x-rate-limit-reset'] * 1000); // The timestamp in Unix
+                                               // The timestamp in Unix works in seconds and the timestamp
+                                               // in Javascript works in milliseconds.
   showRemainingTime(time);
 
   setTimeout(function () {
@@ -74,8 +47,9 @@ function ratedLimit(err, params) {
     }
 
     twit._getUsingCursor(url, params, showFirstFollowing);
-  }, calculateDifference(time)); // It works, when countdown comes to zero
-}
+  }, time.getTime() - new Date().getTime()); // It works, when countdown comes to zero
+
+} // ratedLimit
 
 
 function showFirstFollowing(err, params) {
@@ -83,7 +57,7 @@ function showFirstFollowing(err, params) {
     return ratedLimit(err, params);
   }
 
-  // Show the first following
+  // Show the dates of the first following
   twit.showUser(params[params.length - 1], function (err, params) {
     if (err) {
       return console.log(err);
